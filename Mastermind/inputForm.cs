@@ -104,7 +104,7 @@ namespace Mastermind
                         max = 0;
                         break;
                     case 11:
-                        Engine.x = int.Parse(Display.Text);
+                        Engine.nu = int.Parse(Display.Text);
                         this.Close();
                         break;
                 }

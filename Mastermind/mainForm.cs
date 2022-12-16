@@ -1,4 +1,5 @@
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Mastermind
@@ -6,7 +7,7 @@ namespace Mastermind
     public partial class mainForm : Form
     {
         ListBox listbox;
-        int ncs;
+        int nc;
         Random rnd = new Random();
         public mainForm()
         {
@@ -16,23 +17,29 @@ namespace Mastermind
         {
             inputForm myIF = new inputForm();
             myIF.ShowDialog();
-
         }
 
         private void mainForm_Load(object sender, EventArgs e)
         {
             listbox = new ListBox();
-            listbox.Width = 100;
+            listbox.Width = 300;
             listbox.Height = 500;
-            listbox.Top = 50;
+            listbox.Top = 20;
             listbox.Left = 10;
             listbox.Parent = this;
             listbox.Font = new Font("Arial", 20, FontStyle.Regular);
+            Engine.h1 = Engine.Load(@"C:\Users\David Joldes\OneDrive\Desktop\fundamentele programarii\Mastermind\Mastermind\Resources\Help\h1.txt");
+            Engine.h2 = Engine.Load(@"C:\Users\David Joldes\OneDrive\Desktop\fundamentele programarii\Mastermind\Mastermind\Resources\Help\h2.txt");
+            Engine.h3 = Engine.Load(@"C:\Users\David Joldes\OneDrive\Desktop\fundamentele programarii\Mastermind\Mastermind\Resources\Help\h3.txt");
         }
 
         public void refresh()
         {
-            listbox.Items.Add(Engine.x.ToString());
+            int tmp = test();
+            listbox.Items.Add(Engine.nu + " " + Engine.nc);
+            Engine.History.Add(new T(Engine.nu, tmp));
+            listbox.Items.Add(Engine.nu.ToString()+" "+tmp);
+            //textBox1.Text=(Engine.nc.ToString());
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -42,8 +49,9 @@ namespace Mastermind
 
         public void newGame()
         {
-            ncs = generateNumber4();
-            textBox1.Text = ncs.ToString();
+            Engine.nc = generateNumber4();
+            Engine.History.Clear();
+            //textBox1.Text = nc.ToString();
         }
         private void newGameButton_Click(object sender, EventArgs e)
         {
@@ -152,6 +160,99 @@ namespace Mastermind
             x += intregi[t];
             return x;
         }
+        public int test()
+        {
+            int nc_copy= Engine.nc;
+            int[] nComputer = new int[4];
+            for(int i = 0; i < 4; i++)
+            {
+                nComputer[i] = nc_copy % 10;
+                nc_copy /= 10;
+            }
+            int nu_copy = Engine.nu;
+            int[] nUser = new int[4];
+            for(int i = 0; i < 4; i++)
+            {
+                nUser[i] = nu_copy % 10;
+                nu_copy /= 10;
+            }
+            int p = 0, c = 0;
+            for(int i = 0; i < 4; i++)
+            {
+                for(int j=0; j < 4; j++)
+                {
+                    if (nUser[i] == nComputer[j] && i == j)
+                    {
+                        c++;
+                    }
+                    else if (nUser[i] == nComputer[j] && i != j)
+                    {
+                        p++;
+                    }
+                }
+            }
+            return 100 + (c*10) + p;
+        }
+        public int test(int x, int y)
+        {
+            int nc_copy = x;
+            int[] nComputer = new int[4];
+            for (int i = 0; i < 4; i++)
+            {
+                nComputer[i] = nc_copy % 10;
+                nc_copy /= 10;
+            }
+            int nu_copy = y;
+            int[] nUser = new int[4];
+            for (int i = 0; i < 4; i++)
+            {
+                nUser[i] = nu_copy % 10;
+                nu_copy /= 10;
+            }
+            int p = 0, c = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if (nUser[i] == nComputer[j] && i == j)
+                    {
+                        c++;
+                    }
+                    else if (nUser[i] == nComputer[j] && i != j)
+                    {
+                        p++;
+                    }
+                }
+            }
+            return 100 + (c * 10) + p;
+        }
+        public int hint()
+        {
+            int pn;
+            bool ok;
+            do
+            {
+                pn = generateNumber4();
+                ok = true;
+                foreach (T t in Engine.History)
+                {
+                    if (test(pn, t.nr) != t.pow)
+                        ok = false;
+                    break;
+                }
+            } while (!ok);
+            return pn;
+        }
 
+        private void hintButton_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = hint().ToString();
+        }
+
+        private void helpButton_Click(object sender, EventArgs e)
+        {
+            HelpForm helpform = new HelpForm();
+            helpform.ShowDialog();
+        }
     }
 }
